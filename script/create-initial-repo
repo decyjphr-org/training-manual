@@ -11,7 +11,8 @@ source ./shared_functions
 template_name="caption-this"
 org_url="https://$ROOT_URL/$CLASS_ORG"
 org_repos_endpoint="https://$INSTANCE_URL/repos/$CLASS_ORG"
-template_url="https://github.com/githubtraining/$template_name"
+template_url="https://$ROOT_URL/$CLASS_ORG/$template_name"
+#template_url="https://github.com/githubtraining/$template_name"
 template_url_ghes="https://$ROOT_URL/$CLASS_ORG/$template_name"
 
 get_initial_repo_name() {
@@ -49,7 +50,7 @@ create_initial_repo() {
     --name "$repo_name" \
     --description "Let's learn about Git and GitHub" \
     --homepage "$homepage" \
-    --private false \
+    --private true \
     --has_wiki false
 
   # Create a temporary directory for the template repo

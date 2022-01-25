@@ -24,8 +24,11 @@ add_collaborators() {
   for commenter in "${commenters[@]}"; do
     # Check if commenter is already a collaborator
     if [[ ${collaborators[*]:?} == *"${commenter}"* ]]; then
+      echo I am here
       existing_collaborators+=("$commenter")
     else # Add collaborator
+      echo calling $repo_endpoint/collaborators/$commenter
+
       curl -s -S -i -u "$TOKEN_OWNER:$TEACHER_PAT" \
         -X PUT "$repo_endpoint/collaborators/$commenter" >>log.out 2>&1
       get_collaborators "$collab_repo" # Update list of collaborators
@@ -138,13 +141,13 @@ make_repo_private() {
   # If the repo is private
   if "$repo_is_private"; then
     echo "This repo is already private."
-    return # exit the function
+  #  return # exit the function
   fi
 
   # Default to 'yes' if no answer is given
   if ask "Are you ready to make this repo private?" Y; then
     # Make the repo private
-    curl -s -S -i -u "$TOKEN_OWNER:$TEACHER_PAT" -d "{ \"name\": \"$collab_repo\", \"private\": true }" -X PATCH "$repo_endpoint" >>log.out 2>&1
+    curl -s -S -i -u "$TOKEN_OWNER:$TEACHER_PAT" -d "{ \"name\": \"$collab_repo\", \"private\": true, \"visibility\": \"private\" }" -X PATCH "$repo_endpoint" >>log.out 2>&1
     if ask "Does this class get 1:1 sessions?" N; then
       create_one_on_one_issue
     fi
@@ -176,6 +179,8 @@ get_commenters() {
     curl -s -S -u "$TOKEN_OWNER:$TEACHER_PAT" -X GET "$repo_endpoint/issues/1/comments?per_page=100" |
       jq -r 'map(.user.login) | unique | @sh' | tr -d \'
   )" >>log.out 2>&1
+  echo "$repo_endpoint/issues/1/comments?per_page=100"
+  echo $commenters
 }
 
 get_existing_files() {

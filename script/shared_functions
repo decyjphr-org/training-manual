@@ -65,12 +65,13 @@ create_repo() {
 
   echo -n "Creating repository: $name... "
 
-  if http --check-status --ignore-stdin --quiet --auth \
+  if http --check-status --ignore-stdin  --auth \
     "$TOKEN_OWNER:$TEACHER_PAT" "$repos_endpoint" \
     name="$name" \
     description="$description" \
     homepage="$homepage" \
-    private:="$private" \
+    private="true" \
+    visibility="internal" \
     has_wiki="$has_wiki"; then
     echo "Done."
   else
