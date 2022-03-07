@@ -27,6 +27,28 @@ print_done() {
   echo "${blue}Done! $1${reset}"
 }
 
+spinner()
+{
+  echo -ne "\nPausing to avoid secondary limits!!!!"
+  spin[0]="-"
+  spin[1]="\\"
+  spin[2]="|"
+  spin[3]="/"
+
+  loop=1
+  while [ $loop -le 20 ];
+  do
+    #Increment the loop
+    loop=$((loop + 1))
+    for i in "${spin[@]}"
+    do
+        echo -ne "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b$i Pausing to avoid secondary limits!!!!"
+        sleep 0.1
+    done
+  done
+  echo -ne "\n"
+}
+
 # https://superuser.com/a/1415376
 # Returns exit code 0 (success) if $1 is a reachable git remote url
 repo_is_reachable() {
@@ -272,7 +294,7 @@ create_issue() {
 
   # Wait for 1 second to avoid secondary rate limiting
   sleep 1
-
+  spinner 
   if http --check-status --ignore-stdin --quiet --auth \
     "$TOKEN_OWNER:$TEACHER_PAT" "$org_repos_endpoint/$repo/issues" \
     title="$title" \
@@ -297,7 +319,7 @@ create_pull_request() {
 
   # Wait for 1 second to avoid secondary rate limiting
   sleep 1
-
+  spinner 
   if http --check-status --ignore-stdin --quiet --auth \
     "$TOKEN_OWNER:$TEACHER_PAT" "$org_repos_endpoint/$repo/pulls" \
     title="$title" \
