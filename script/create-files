@@ -65,19 +65,28 @@ create_files() {
         sed -i "s|IMAGE|$random_image|g" "$new_file" >>log.out 2>&1
         # Encode the file
         content=$(base64 <"$new_file" --wrap=0)
+      elif [[ "$OSTYPE" = "linux-gnu" ]]; then
+        # Insert slide image into slide
+        escaped_random_image=$(printf '%s\n' "$random_image" | sed -e 's/[\/&]/\\&/g')
+        sed -i "s|IMAGE|$escaped_random_image|g" "$new_file" >>log.out 2>&1
+        # Encode the file
+        content=$(base64 <"$new_file")
       else
         # Insert slide image into slide
-        sed -i "" "s|IMAGE|$random_image|g" "$new_file" >>log.out 2>&1
+        sed -i "" "s|IMAGE|$random_image|g" "$new_file"
+	# >>log.out 2>&1
         # Encode the file
         content=$(base64 <"$new_file")
       fi
       # Put the file in the repository
       path="_slides/$new_file"
       message="Create activity file for $collaborator"
-      curl -s -S -i -u "$TOKEN_OWNER:$TEACHER_PAT" -d "{ \"path\": \"$path\", \"message\": \"$message\", \"content\": \"$content\" }" \
+      echo -e "{ \"path\": \"$path\", \"message\": \"$message\", \"content\": \"$content\" }" > payload
+      curl -s -S -i -u "$TOKEN_OWNER:$TEACHER_PAT" -d @payload \
         -X PUT "$repo_endpoint/contents/$path" >>log.out 2>&1
       # Remove the local file
       rm "./$new_file"
+      rm payload
       # List of collaborators that new files are being created for
       collaborators_with_new_files+=("$collaborator")
     fi
